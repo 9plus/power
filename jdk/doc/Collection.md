@@ -1,0 +1,1 @@
+`Collection`是`Collection`继承体系的根接口(root interface)

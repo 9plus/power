@@ -38,10 +38,11 @@ import java.util.stream.StreamSupport;
  * specific subinterfaces like {@code Set} and {@code List}.  This interface
  * is typically used to pass collections around and manipulate them where
  * maximum generality is desired.
+ * Collection是Collection继承体系的根接口，集合可以包含重复元素，也可以有序或者无需
  *
  * <p><i>Bags</i> or <i>multisets</i> (unordered collections that may contain
  * duplicate elements) should implement this interface directly.
- *
+ * 包含重复元素的无序集合
  * <p>All general-purpose {@code Collection} implementation classes (which
  * typically implement {@code Collection} indirectly through one of its
  * subinterfaces) should provide two "standard" constructors: a void (no
@@ -217,7 +218,7 @@ import java.util.stream.StreamSupport;
  * @since 1.2
  */
 
-public interface Collection<E> extends Iterable<E> {
+public interface Collection<E> extends Iterable<E> {  //E element 指定元素类型，继承自迭代器类型
     // Query Operations
 
     /**
@@ -252,7 +253,7 @@ public interface Collection<E> extends Iterable<E> {
      *         collection does not permit null elements
      *         (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      */
-    boolean contains(Object o);
+    boolean contains(Object o); //空指针异常和类型转换异常
 
     /**
      * Returns an iterator over the elements in this collection.  There are no
