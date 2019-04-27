@@ -109,3 +109,71 @@ public String(int[] codePoints, int offset, int count) {
 ## 方法
 
 `length()`会右移coder()位。
+
+---
+
+
+
+
+
+
+
+> 本文基于JDK1.8
+
+上篇文章学习了下String中的哈希值的作用，本篇开始正式进入String类。文章将以如下的模式铺展开。
+
+- 类的整体结构
+- 成员变量
+- 内部方法
+
+话不多说，进入整体。
+
+## 类的整体结构
+
+String作为Java最基本最常用的类，我们应当对其内部实现有一个清晰的了解。先看String类的定义：
+
+```java
+public final class String
+	implements java.io.Serializable, Comparable<String>, CharSequence {
+	
+	...
+}
+```
+
+String类实现了Serializable可序列接口，Comparable可比较接口，CharSequence包含一些字符处理方法的接口，这些暂且不管。
+
+我们仔细聊聊**final**这个关键字。
+
+### final修饰有什么用？
+
+emmm，final可以修饰哪些呢？final可以修饰类，成员变量，方法。
+
+被final修饰的类不可被继承，被final修饰的成员变量不可变，被final修饰的方法子类无法覆盖(重写)。
+
+也就说String类是无法被继承的。
+
+### String类为什么要设计成不可继承？
+
+将方法或类声明为final主要目的是：确保它们不会在子类中改变语义。String基本约定中最重要的一条是immutable(不可变性)，假如String是可继承的，那么你的StringChild类就有可能被复写为mutable(可变)的，这样就打破了成为共识的基本约定。
+
+简单说来，整个JDK体系中依赖了String的不可变性，不可继承就是为了守护不可变性。
+
+但是这里仅仅是把类型声明为了final，这不足以保证String类的不可变性。String不可变，关键是因为SUN公司的工程师，在后面所有String的方法里很小心的没有去动String类中用来存字符的array里的元素，没有暴露内部成员字段。通过底层的实现 + 声明时的final的双重保证实现了不可变性。
+
+### String类的不可变性有什么好处？
+
+不可变对象，顾名思义就是创建后不可以改变的对象。请看如下代码：
+
+```java
+String s = "ABC"; 
+s.toLowerCase();
+```
+
+toLowerCase()并没有改变“ABC”的值，而是创建了一个新的String类”abc”,然后将新的实例的指向变量s。
+
+相对于可变对象，不可变对象有很多优势。
+
+- 1）不可变对象可以提高String Pool的效率和安全性。如果你知道一个对象是不可变的，那么需要拷贝这个对象的内容时，就不用复制它的本身而只是复制它的地址，复制地址（通常一个指针的大小）需要很小的内存效率也很高。对于同时引用这个“ABC”的其他变量也不会造成影响。
+- 2）不可变对象对于多线程是安全的，因为在多线程同时进行的情况下，一个可变对象的值很可能被其他进程改变，这样会造成不可预期的结果，而使用不可变对象就可以避免这种情况。
+
+当然也有其他方面原因，但是最Java把String设成immutable最大的原因应该就是效率和安全的。
