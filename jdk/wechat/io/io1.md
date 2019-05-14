@@ -123,5 +123,3 @@ public void write(byte b[], int off, int len) throws IOException;
 ##### void close()
 
 **冲刷**并关闭输出流。
-
-### 
