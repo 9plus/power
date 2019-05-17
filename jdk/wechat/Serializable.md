@@ -84,33 +84,16 @@ if (obj instanceof String) {
 }
 ```
 
-可以看到，在else if中通过判断`obj instanceof Serializable`，如果对象没有实现序列化接口，就无法序列化。可以想见，Java中的每一处序列化都进行了这样的检查。
+如上所示，在else if中通过判断`obj instanceof Serializable`，如果对象没有实现序列化接口，就无法序列化。可以想见，Java中的每一处序列化都进行了这样的检查，也就是说，**没有实现Serializable接口的对象是无法通过IO操作持久化**。
 
-<http://developer.51cto.com/art/201905/596334.htm>
+然后，我们测试反序列化，将文件中持久化的对象转换为Java对象。
 
 ```java
-package thinking.in.java;
-
-import thinking.in.java.common.User;
-
-import java.io.*;
-
 public class SerializableTest {
-
-    private static void write() {
-        User user = new User("1001", "Bob");
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("Z:\\workspace\\gyx\\github_projects\\practice\\src\\thinking\\in\\java\\user.txt"));
-            objectOutputStream.writeObject(user);
-            objectOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static void read() {
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("Z:\\workspace\\gyx\\github_projects\\practice\\src\\thinking\\in\\java\\user.txt"));
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("Z:\\workspace\\practice\\user.txt"));
             User user = (User) inputStream.readObject();
             System.out.println(user);
         } catch (IOException | ClassNotFoundException e) {
@@ -118,29 +101,27 @@ public class SerializableTest {
         }
     }
     public static void main(String[] args) {
-        write();
+        read();
     }
 }
-
 ```
 
+打印信息为:
+
 ```java
-package thinking.in.java.common;
+thinking.in.java.common.User@58372a00
+```
 
-import java.io.Serializable;
+此时如果将User实现Serializable接口的代码部分去掉，发现也无法将文本转换为序列化对象，反序列化异常：
 
-public class User {
-
-    private String id;
-    private String name;
-
-    public User(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-
-}
-
+```java
+java.io.InvalidClassException: thinking.in.java.common.User; class invalid for deserialization
+	at java.io.ObjectStreamClass$ExceptionInfo.newInvalidClassException(ObjectStreamClass.java:169)
+	at java.io.ObjectStreamClass.checkDeserialize(ObjectStreamClass.java:874)
+	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2043)
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1573)
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:431)
+	at thinking.in.java.SerializableTest.read(SerializableTest.java:23)
+	at thinking.in.java.SerializableTest.main(SerializableTest.java:30)
 ```
 
