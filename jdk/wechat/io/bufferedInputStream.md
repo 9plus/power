@@ -82,7 +82,7 @@ protected int marklimit;
 * 从数据源再读一段buffer填充在count尾端，并右移count。
 * 剩下的空间放不下从数据源新读的buffer了，将pos置0，count等于新读进来的buffer的长度。
 
-markpos默认初始化为-1，代表未开始标记功能，当调用mark()方法之后，markpos 就会等于当前的pos值。当我们继续读取字节，pos增加，调用reset()方法时pos会等于之前的markpos值，实现重复读的功能。marklimit我们放后面讲。
+markpos默认初始化为-1，代表未开始标记功能，当调用mark(int)方法之后，markpos 就会等于当前的pos值。当我们继续读取字节，pos增加，调用reset()方法时pos会等于之前的markpos值，实现重复读的功能。marklimit等于mark方法的参数readlimit，代表重复读的右边界。
 
 ## 函数分析
 
@@ -201,7 +201,7 @@ private int read1(byte[] b, int off, int len) throws IOException {
 
 read1方法中，如果当前缓冲区还有空间，取剩余空间与写入byte数组的长度中较小的一方为写入到byte数组的字节长度。并将pos右移该长度。
 
-如果当前缓冲区没有数据可写了，先做一个计算题：
+如果当前缓冲区没有数据可写了，需要判断是否能用加速机制。我们先做一个计算题：
 
 * 如果要写入byte数组的长度len大于缓冲区的长度buffer.length，那么我们需要做 **(len / buffer.length) + 1** 次的 从数据源读字节到缓冲区 -- 读取缓冲区全部数据 -- 清空缓冲区 的操作。
 * 如果直接从数据源读，则只要读一次。
@@ -319,5 +319,109 @@ public void close() throws IOException {
 }
 ```
 
-关闭输入流。<https://www.jb51.net/article/113801.htm>
+关闭输入流。
 
+## 实例：
+
+```java
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.lang.SecurityException;
+ 
+/**
+ * BufferedInputStream 测试程序
+ *
+ * @author skywang
+ */
+public class BufferedInputStreamTest {
+ 
+  private static final int LEN = 5;
+ 
+  public static void main(String[] args) {
+    testBufferedInputStream() ;
+  }
+ 
+  /**
+   * BufferedInputStream的API测试函数
+   */
+  private static void testBufferedInputStream() {
+ 
+    // 创建BufferedInputStream字节流，内容是ArrayLetters数组
+    try {
+      File file = new File("bufferedinputstream.txt");
+      InputStream in =
+         new BufferedInputStream(
+           new FileInputStream(file), 512);
+ 
+      // 从字节流中读取5个字节。“abcde”，a对应0x61，b对应0x62，依次类推...
+      for (int i=0; i<LEN; i++) {
+        // 若能继续读取下一个字节，则读取下一个字节
+        if (in.available() >= 0) {
+          // 读取“字节流的下一个字节”
+          int tmp = in.read();
+          System.out.printf("%d : 0x%s\n", i, Integer.toHexString(tmp));
+        }
+      }
+ 
+      // 若“该字节流”不支持标记功能，则直接退出
+      if (!in.markSupported()) {
+        System.out.println("make not supported!");
+        return ;
+      }
+        
+      // 标记“当前索引位置”，即标记第6个位置的元素--“f”
+      // 1024对应marklimit
+      in.mark(1024);
+ 
+      // 跳过22个字节。
+      in.skip(22);
+ 
+      // 读取5个字节
+      byte[] buf = new byte[LEN];
+      in.read(buf, 0, LEN);
+      // 将buf转换为String字符串。
+      String str1 = new String(buf);
+      System.out.printf("str1=%s\n", str1);
+ 
+      // 重置“输入流的索引”为mark()所标记的位置，即重置到“f”处。
+      in.reset();
+      // 从“重置后的字节流”中读取5个字节到buf中。即读取“fghij”
+      in.read(buf, 0, LEN);
+      // 将buf转换为String字符串。
+      String str2 = new String(buf);
+      System.out.printf("str2=%s\n", str2);
+ 
+      in.close();
+    } catch (FileNotFoundException | SecurityException | IOException e) {
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+程序中读取的bufferedinputstream.txt的内容如下：
+
+
+
+```
+abcdefghijklmnopqrstuvwxyz
+0123456789
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+```
+
+
+
+运行结果：
+
+0 : 0x61
+1 : 0x62
+2 : 0x63
+3 : 0x64
+4 : 0x65
+str1=01234
+str2=fghij
