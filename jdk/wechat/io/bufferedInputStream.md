@@ -406,18 +406,15 @@ public class BufferedInputStreamTest {
 
 程序中读取的bufferedinputstream.txt的内容如下：
 
-
-
 ```
 abcdefghijklmnopqrstuvwxyz
 0123456789
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ```
 
-
-
 运行结果：
 
+```java
 0 : 0x61
 1 : 0x62
 2 : 0x63
@@ -425,3 +422,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
 4 : 0x65
 str1=01234
 str2=fghij
+```
+
+
+
