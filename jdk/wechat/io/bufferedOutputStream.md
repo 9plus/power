@@ -1,6 +1,6 @@
 > 本文基于JDK1.8，首发于公众号：**Plus技术栈**
 
-BufferedOutputStream是与BufferedInputStream(补充链接)相对应的字节缓冲输出流。该类可以用write进行写出字节，并调用flush**冲刷掉**残留在缓存区的字节。
+缓冲输出流BufferedOutputStream是与缓冲输入流BufferedInputStream相对应的面向字节的IO类。该类可以用write进行写出字节，并调用flush冲刷掉残留在缓存区的字节。
 
 BufferedOutputStream的继承体系为：
 
