@@ -1,10 +1,10 @@
-### 前言
+## 前言
 
-作为一名后端开发，涉及到前端时可能更注重JavaScript和TypeScript的学习与使用，至于html + css就并没有去深入学习。[Angular Material](<https://material.angular.io/>)(下称Material)的组件样式至少是可以满足一般的个人开发需求(~~我真是毫无设计天赋~~)，也是Angular官方推荐的组件。我们通过用这个UI库来快速实现自己的idea。
+[Angular Material](<https://material.angular.io/>)(下称Material)的组件样式至少是可以满足一般的个人开发需求(~~我真是毫无设计天赋~~)，也是Angular官方推荐的组件。我们通过用这个UI库来快速实现自己的idea。
 
 在上节中我们安装了Angular，并新建了一个简单工程。这节中我们将会将Material导入工程中，简单写一个HelloWorld的例子，并讲解Angular模块中的declarations、imports、providers以及bootstrap等概念。
 
-### 环境安装
+## 环境安装
 
 Material简单说来就是一个库，于后端来说，无论是Java中的`import`、C++中的`#include`还是Python中的`import`，都是为了导入第三方库。那么在前端，也是需要导入UI库的，导入的UI库包含了代码逻辑(controller)与视图界面(view)。
 
@@ -12,7 +12,7 @@ Material简单说来就是一个库，于后端来说，无论是Java中的`impo
 
 简单说来有4步：
 
-**Step1 **加入工程依赖
+**Step1**加入工程依赖
 
 假设我已经通过`ng new`的命令创建了一个工程hello-world。进入到该工程中，执行npm install命令。
 
